@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Küçük Bir SoruMaratonu ✨</title>
+  <style>
+    :root {
+      --bg-color: #fff0f3;
+      --card-bg: #ffffff;
+      --primary: #ff4d6d;
+      --primary-hover: #ff758f;
+      --text-color: #590d22;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 30px 25px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(255, 77, 109, 0.15);
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: #ffe5ec;
+      border-radius: 10px;
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
+
+    .progress {
+      height: 100%;
+      width: 25%;
+      background: var(--primary);
+      transition: width 0.4s ease;
+    }
+
+    .emoji {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    button {
+      background: #fff0f3;
+      color: var(--text-color);
+      border: 2px solid #ffb3c1;
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 15px;
+      position: relative;
+    }
+
+    #noBtn {
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="progress-bar">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <div id="quiz-container">
+      <span class="emoji" id="emoji">✨</span>
+      <h2 id="question">Soru yükleniyor...</h2>
+      <div class="options" id="options"></div>
+    </div>
+
+    <!-- Final Ekranı -->
+    <div id="final-container" class="hidden">
+      <span class="emoji">☕✨</span>
+      <h2 id="final-title">Öyleyse anlaşma sağlandı!</h2>
+      <p id="final-desc" style="margin-bottom: 20px; line-height: 1.5;">Görünüşe göre harika bir kahve kaçamağı bizi bekliyor.</p>
+      <div class="btn-group">
+        <button id="yesBtn" onclick="finishApp()">Harika, Söz!</button>
+        <button id="noBtn" onmouseover="escapeNo()">I-ıh 🙈</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Buraları istediğin gibi değiştirebilirsin!
+    const questions = [
+      {
+        emoji: "☕",
+        question: "İdeal bir kahve molasında senin tercihin hangisi olurdu?",
+        options: ["Sakin bir kafede espresso / latte", "Parkta yürüyüş yaparken filtre kahve", "Açık havada çay & tatlı"]
+      },
+      {
+        emoji: "🎧",
+        question: "Arka planda ne tür bir müzik çalsa modun hemen yükselir?",
+        options: ["Indie / Akustik", "Retro / 80'ler", "Jazz / Chillhop"]
+      },
+      {
+        emoji: "🍰",
+        question: "Yanında tatlı olarak ne alırdık?",
+        options: ["San Sebastian / Cheesecake", "Çikolatalı Kruvasan", "Sadece sohbet yeter!"]
+      },
+      {
+        emoji: "🗓️",
+        question: "Son soru: Bu mini testi tamamladığına göre kısa bir kahve molasına ne dersin?",
+        options: ["Kesinlikle, ne zaman?", "Uygundur, planı yapalım!"]
+      }
+    ];
+
+    let currentStep = 0;
+
+    function renderQuestion() {
+      const q = questions[currentStep];
+      document.getElementById("emoji").innerText = q.emoji;
+      document.getElementById("question").innerText = q.question;
+      
+      const optionsContainer = document.getElementById("options");
+      optionsContainer.innerHTML = "";
+
+      q.options.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.innerText = opt;
+        btn.onclick = () => nextQuestion();
+        optionsContainer.appendChild(btn);
+      });
+
+      // Progress güncelle
+      const progressPercent = ((currentStep + 1) / questions.length) * 100;
+      document.getElementById("progress").style.width = progressPercent + "%";
+    }
+
+    function nextQuestion() {
+      currentStep++;
+      if (currentStep < questions.length) {
+        renderQuestion();
+      } else {
+        showFinal();
+      }
+    }
+
+    function showFinal() {
+      document.getElementById("quiz-container").classList.add("hidden");
+      document.getElementById("final-container").classList.remove("hidden");
+      document.getElementById("progress").style.width = "100%";
+    }
+
+    // Kaçan "Hayır" Butonu Fonksiyonu
+    function escapeNo() {
+      const btn = document.getElementById("noBtn");
+      const x = Math.floor(Math.random() * 200) - 100;
+      const y = Math.floor(Math.random() * 200) - 100;
+      btn.style.transform = `translate(${x}px, ${y}px)`;
+    }
+
+    function finishApp() {
+      alert("Sözünü aldım! ✨ Mesaj atıyorum :)");
+    }
+
+    // Başlat
+    renderQuestion();
+  </script>
+</body>
+</html>
