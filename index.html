@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Küçük Bir SoruMaratonu ✨</title>
+  <title>Küçük Bir Soru Maratonu ✨</title>
   <style>
     :root {
-      --bg-color: #fff0f3;
+      --bg-color: #ffe6ea;
       --card-bg: #ffffff;
       --primary: #ff4d6d;
       --primary-hover: #ff758f;
@@ -32,20 +32,21 @@
 
     .card {
       background: var(--card-bg);
-      border-radius: 20px;
+      border-radius: 24px;
       padding: 30px 25px;
       max-width: 420px;
       width: 100%;
-      box-shadow: 0 10px 30px rgba(255, 77, 109, 0.15);
+      box-shadow: 0 12px 35px rgba(255, 77, 109, 0.2);
       text-align: center;
-      transition: transform 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
 
     .progress-bar {
       height: 6px;
       background: #ffe5ec;
       border-radius: 10px;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
       overflow: hidden;
     }
 
@@ -56,14 +57,23 @@
       transition: width 0.4s ease;
     }
 
-    .emoji {
-      font-size: 3rem;
+    .gif-container {
+      height: 180px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       margin-bottom: 15px;
-      display: block;
+    }
+
+    .gif-container img {
+      max-height: 100%;
+      max-width: 100%;
+      border-radius: 16px;
+      object-fit: contain;
     }
 
     h2 {
-      font-size: 1.35rem;
+      font-size: 1.3rem;
       margin-bottom: 20px;
       line-height: 1.4;
     }
@@ -79,7 +89,7 @@
       color: var(--text-color);
       border: 2px solid #ffb3c1;
       padding: 14px 18px;
-      border-radius: 12px;
+      border-radius: 14px;
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
@@ -97,13 +107,24 @@
       display: flex;
       gap: 15px;
       justify-content: center;
-      margin-top: 15px;
-      position: relative;
+      align-items: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    #yesBtn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     #noBtn {
       position: relative;
       transition: all 0.2s ease;
+      background: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
     }
 
     .hidden {
@@ -118,54 +139,72 @@
       <div class="progress" id="progress"></div>
     </div>
 
+    <!-- Soru Ekranı -->
     <div id="quiz-container">
-      <span class="emoji" id="emoji">✨</span>
+      <div class="gif-container">
+        <img id="quiz-gif" src="https://media.tenor.com/gU21Go3h498AAAAi/bear-cute.gif" alt="Cute Gif">
+      </div>
       <h2 id="question">Soru yükleniyor...</h2>
       <div class="options" id="options"></div>
     </div>
 
-    <!-- Final Ekranı -->
+    <!-- Final Teklif Ekranı -->
     <div id="final-container" class="hidden">
-      <span class="emoji">☕✨</span>
-      <h2 id="final-title">Öyleyse anlaşma sağlandı!</h2>
-      <p id="final-desc" style="margin-bottom: 20px; line-height: 1.5;">Görünüşe göre harika bir kahve kaçamağı bizi bekliyor.</p>
-      <div class="btn-group">
-        <button id="yesBtn" onclick="finishApp()">Harika, Söz!</button>
-        <button id="noBtn" onmouseover="escapeNo()" ontouchstart="escapeNo()">I-ıh 🙈</button>
+      <div class="gif-container">
+        <img id="final-gif" src="https://media.tenor.com/ef39n0D2yvAAAAAi/milk-and-mocha.gif" alt="Please Gif">
       </div>
+      <h2 id="final-title">Öyleyse anlaşma sağlandı mı? ☕✨</h2>
+      <p id="final-desc" style="margin-bottom: 15px; font-size: 0.95rem; color: #800f2f;">Kısa bir kahve molasına ne dersin?</p>
+      
+      <div class="btn-group">
+        <button id="yesBtn" onclick="finishApp()">Evet! 🥰</button>
+        <button id="noBtn" onmouseover="escapeNo()" ontouchstart="escapeNo(event)">Hayır 🙈</button>
+      </div>
+    </div>
+
+    <!-- Tebrik/Kabul Ekranı -->
+    <div id="success-container" class="hidden">
+      <div class="gif-container">
+        <img src="https://media.tenor.com/gU21Go3h498AAAAi/bear-cute.gif" alt="Happy Gif">
+      </div>
+      <h2>Yaaa harika! 🎉</h2>
+      <p style="margin-top: 10px; line-height: 1.5; color: #590d22;">Planı yapmak için sabırsızlanıyorum ✨</p>
     </div>
   </div>
 
   <script>
-    // Buraları istediğin gibi değiştirebilirsin!
     const questions = [
       {
-        emoji: "☕",
+        gif: "https://media.tenor.com/gU21Go3h498AAAAi/bear-cute.gif",
         question: "İdeal bir kahve molasında senin tercihin hangisi olurdu?",
-        options: ["Sakin bir kafede espresso / latte", "Parkta yürüyüş yaparken filtre kahve", "Açık havada çay & tatlı"]
+        options: ["Sakin bir kafede latte / espresso ☕", "Açık havada tatlı & çay 🍰", "Parkta yürüyüş yaparken filtre kahve 🌿"]
       },
       {
-        emoji: "🎧",
+        gif: "https://media.tenor.com/tk3A3s_b3EAAAAAi/cat-music.gif",
         question: "Arka planda ne tür bir müzik çalsa modun hemen yükselir?",
-        options: ["Indie / Akustik", "Retro / 80'ler", "Jazz / Chillhop"]
+        options: ["Indie / Akustik 🎸", "Retro / 80'ler 🪩", "Jazz / Chillhop 🎷"]
       },
       {
-        emoji: "🍰",
-        question: "Yanında tatlı olarak ne alırdık?",
-        options: ["San Sebastian / Cheesecake", "Çikolatalı Kruvasan", "Sadece sohbet yeter!"]
-      },
-      {
-        emoji: "🗓️",
-        question: "Son soru: Bu mini testi tamamladığına göre kısa bir kahve molasına ne dersin?",
-        options: ["Kesinlikle, ne zaman?", "Uygundur, planı yapalım!"]
+        gif: "https://media.tenor.com/vH1N2Rz4fBAAAAAi/mochi-peach.gif",
+        question: "Kahvenin yanında tatlı olarak ne alırdık?",
+        options: ["San Sebastian / Cheesecake 🧀", "Çikolatalı Kruvasan 🥐", "Sadece sohbet yeter! ✨"]
       }
     ];
 
+    const noGifs = [
+      "https://media.tenor.com/ef39n0D2yvAAAAAi/milk-and-mocha.gif",
+      "https://media.tenor.com/97y4x7A53LAAAAAi/bear-sad.gif",
+      "https://media.tenor.com/9dM2GqWdClAAAAAi/cry-cat.gif",
+      "https://media.tenor.com/J3-6A1jU8L4AAAAi/mocha-bear.gif"
+    ];
+
     let currentStep = 0;
+    let yesScale = 1;
+    let noClickCount = 0;
 
     function renderQuestion() {
       const q = questions[currentStep];
-      document.getElementById("emoji").innerText = q.emoji;
+      document.getElementById("quiz-gif").src = q.gif;
       document.getElementById("question").innerText = q.question;
       
       const optionsContainer = document.getElementById("options");
@@ -178,8 +217,7 @@
         optionsContainer.appendChild(btn);
       });
 
-      // Progress güncelle
-      const progressPercent = ((currentStep + 1) / questions.length) * 100;
+      const progressPercent = ((currentStep + 1) / (questions.length + 1)) * 100;
       document.getElementById("progress").style.width = progressPercent + "%";
     }
 
@@ -198,19 +236,41 @@
       document.getElementById("progress").style.width = "100%";
     }
 
-    // Kaçan "Hayır" Butonu Fonksiyonu
-    function escapeNo() {
+    // "Hayır" butonuna basıldığında/yaklaşıldığında kaçma ve "Evet"i büyütme
+    function escapeNo(e) {
+      if(e) e.preventDefault();
+      
       const btn = document.getElementById("noBtn");
+      const yesBtn = document.getElementById("yesBtn");
+      const finalGif = document.getElementById("final-gif");
+
+      // Hayır butonunu rastgele kaydır
       const x = Math.floor(Math.random() * 200) - 100;
-      const y = Math.floor(Math.random() * 200) - 100;
+      const y = Math.floor(Math.random() * 160) - 80;
       btn.style.transform = `translate(${x}px, ${y}px)`;
+
+      // Evet butonunu büyüt
+      yesScale += 0.25;
+      yesBtn.style.transform = `scale(${yesScale})`;
+
+      // Her kaçışta GIF'i daha üzgün bir GIF yap
+      noClickCount = (noClickCount + 1) % noGifs.length;
+      finalGif.src = noGifs[noClickCount];
     }
 
     function finishApp() {
-      alert("Sözünü aldım! ✨ Mesaj atıyorum :)");
+      document.getElementById("final-container").classList.add("hidden");
+      document.getElementById("success-container").classList.remove("hidden");
+      
+      // WhatsApp yönlendirmesi (Kendi numaranı ekleyebilirsin)
+      const phone = "905000000000"; 
+      const message = encodeURIComponent("Testi tamamladım! Kahve teklifini kabul ediyorum ✨");
+      
+      setTimeout(() => {
+        window.location.href = `https://wa.me/${phone}?text=${message}`;
+      }, 2000);
     }
 
-    // Başlat
     renderQuestion();
   </script>
 </body>
