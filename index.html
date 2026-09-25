@@ -12,6 +12,7 @@
     .gradient-background {
       background: linear-gradient(180deg, #ffd0e5 0%, #ffe8f2 36%, #ffffff 100%);
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     .bounce {
@@ -39,37 +40,41 @@
   <link rel="preload" as="image" href="./images/image7.gif">
 </head>
 <body class="gradient-background">
-  <main class="flex items-center justify-center h-screen">
+  <main class="flex items-center justify-center min-h-screen p-4">
     <section class="flex flex-col items-center p-4 max-w-md w-full text-center">
       
+      <!-- Görsel Display -->
       <img
         id="imageDisplay"
         src="./images/image1.gif"
         alt="Sevimli Görsel"
-        class="rounded-md h-[260px] object-cover mb-4"
+        class="rounded-md h-[240px] max-w-full object-cover mb-4 shadow-sm"
       />
 
+      <!-- İlerleme Çubuğu -->
       <div id="progressBar" class="w-full bg-white/50 h-2 rounded-full mb-4 overflow-hidden">
         <div id="progressFill" class="bg-[#bd1e59] h-full w-0 transition-all duration-300"></div>
       </div>
 
-      <h1 id="valentineQuestion" class="text-3xl font-bold italic text-[#bd1e59] my-2">
+      <!-- Soru Başlığı -->
+      <h1 id="valentineQuestion" class="text-2xl sm:text-3xl font-bold italic text-[#bd1e59] my-2 leading-relaxed">
         Soru yükleniyor...
       </h1>
 
-      <div id="quizOptions" class="flex flex-col gap-3 w-full mt-4">
-        </div>
+      <!-- Quiz Seçenekler Kutusu -->
+      <div id="quizOptions" class="flex flex-col gap-3 w-full mt-4"></div>
 
-      <div id="responseButtons" class="hidden gap-4 pt-5 items-center justify-center">
+      <!-- Kahve Teklifi Buton Kutusu -->
+      <div id="responseButtons" class="hidden gap-4 pt-6 items-center justify-center flex-wrap min-h-[120px] w-full relative">
         <button
           id="yesButton"
-          class="bounce inline-flex items-center justify-center whitespace-nowrap rounded-md text-xl font-medium cursor-pointer px-4 py-2 bg-green-500 text-white transition-all duration-300 ease-in-out hover:bg-green-400 min-h-12 min-w-[75px]"
+          class="bounce inline-flex items-center justify-center whitespace-nowrap rounded-xl font-bold cursor-pointer px-6 py-3 bg-green-500 text-white transition-all duration-300 ease-out hover:bg-green-400 shadow-md text-lg z-10 origin-center"
         >
           Evet! ☕
         </button>
         <button
           id="noButton"
-          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xl font-medium cursor-pointer px-4 py-2 bg-red-500 text-white transition-colors hover:bg-red-700 h-12 min-w-[75px]"
+          class="inline-flex items-center justify-center whitespace-nowrap rounded-xl font-bold cursor-pointer px-4 py-3 bg-red-500 text-white transition-all duration-300 ease-out hover:bg-red-700 shadow-md text-base origin-center"
         >
           Hayır
         </button>
@@ -80,11 +85,9 @@
 
   <script>
     (() => {
-      // Formspree ID'ni buraya yapıştır (Örn: "xgejpwoq")
-      const FORMSPREE_ID = "https://formspree.io/f/xljdwprd"; 
-      const MY_PHONE_NUMBER = "905533245398"; // Telefon numaran
+      const FORMSPREE_ID = "YOUR_FORMSPREE_ID"; 
+      const MY_PHONE_NUMBER = "905000000000";
 
-      // DOM Referansları
       const yesButton = document.getElementById('yesButton');
       const noButton = document.getElementById('noButton');
       const imageDisplay = document.getElementById('imageDisplay');
@@ -94,7 +97,6 @@
       const progressBar = document.getElementById('progressBar');
       const progressFill = document.getElementById('progressFill');
 
-      // Tanışma Soruları Dizesi
       const QUIZ_QUESTIONS = [
         {
           question: "İdeal bir kahve molasında tercihin ne olurdu?",
@@ -113,11 +115,6 @@
         }
       ];
 
-      // Kahve Teklifi Konfigürasyonu
-      const GROWTH_PER_CLICK = 35;
-      const FONT_GROWTH_PER_CLICK = 25;
-      const MAX_NO_CLICKS = 5;
-
       const OFFER_IMAGES = [
         './images/image4.gif',
         './images/image5.gif',
@@ -133,30 +130,27 @@
         'Lütfen ama...',
         'Bunu bana yapma :(',
         'Kalbim kırılıyor...',
-        'Ağlarım ama...',
+        'Düğme bozuldu sanırım... 😅',
+        'Düğme bozuldu sanırım... 🙈'
       ];
 
-      // Durum Değişkenleri
       let currentQuizIndex = 0;
       let userAnswers = {};
       let noClickCount = 0;
-      let buttonHeight = 48;
-      let buttonWidth = 80;
-      let fontSize = 20;
+      let yesScale = 1;
+      let noScale = 1;
 
-      // --- QUIZ MANTIĞI ---
       function loadQuestion() {
         const q = QUIZ_QUESTIONS[currentQuizIndex];
         valentineQuestion.textContent = q.question;
         imageDisplay.src = q.image;
         quizOptions.innerHTML = '';
 
-        // İlerleme çubuğu
         progressFill.style.width = `${((currentQuizIndex + 1) / QUIZ_QUESTIONS.length) * 100}%`;
 
         q.options.forEach(optionText => {
           const btn = document.createElement('button');
-          btn.className = "w-full py-3 px-4 bg-white/80 hover:bg-white text-[#bd1e59] font-semibold rounded-xl border border-[#ffd0e5] shadow-sm transition-all duration-200 hover:scale-[1.02]";
+          btn.className = "w-full py-3 px-4 bg-white/80 hover:bg-white text-[#bd1e59] font-semibold rounded-xl border border-[#ffd0e5] shadow-sm transition-all duration-200 hover:scale-[1.01]";
           btn.textContent = optionText;
           btn.onclick = () => selectAnswer(q.question, optionText);
           quizOptions.appendChild(btn);
@@ -174,42 +168,53 @@
         }
       }
 
-      // --- KAHVE TEKLİFİ MANTIĞI ---
       function startCoffeeOffer() {
         quizOptions.classList.add('hidden');
         progressBar.classList.add('hidden');
         responseButtons.classList.remove('hidden');
+        responseButtons.classList.add('flex');
         
         valentineQuestion.textContent = "Benimle kısa bir kahve molasına çıkar mısın?";
         imageDisplay.src = './images/image1.gif';
       }
 
-      // Hayır Butonu Etkileşimi
+      // Hayır butonuna tıklandığında büyütme/küçültme ve mesaj güncellemeleri
       noButton.addEventListener('click', () => {
-        if (noClickCount >= MAX_NO_CLICKS) return;
-
         noClickCount++;
 
-        imageDisplay.src = OFFER_IMAGES[noClickCount - 1] || OFFER_IMAGES[0];
+        // Görsel güncelleme
+        imageDisplay.src = OFFER_IMAGES[Math.min(noClickCount - 1, OFFER_IMAGES.length - 2)];
 
-        buttonHeight += GROWTH_PER_CLICK;
-        buttonWidth += GROWTH_PER_CLICK;
-        fontSize += FONT_GROWTH_PER_CLICK;
+        // Evet Butonunu taşmadan kademeli büyütme
+        yesScale += 0.22;
+        yesButton.style.transform = `scale(${yesScale})`;
 
-        yesButton.style.height = `${buttonHeight}px`;
-        yesButton.style.width = `${buttonWidth}px`;
-        yesButton.style.fontSize = `${fontSize}px`;
-
-        noButton.textContent = NO_BUTTON_MESSAGES[noClickCount];
+        // Hayır Butonunu kademeli küçültme
+        noScale -= 0.14;
+        
+        if (noClickCount < NO_BUTTON_MESSAGES.length) {
+          noButton.textContent = NO_BUTTON_MESSAGES[noClickCount];
+          if (noScale > 0.2) {
+            noButton.style.transform = `scale(${noScale})`;
+          } else {
+            noButton.style.opacity = '0';
+            noButton.style.pointerEvents = 'none';
+          }
+        } else {
+          // Cümleler bitip en sona geldiğinde butonu tamamen yok et
+          noButton.style.transform = 'scale(0)';
+          noButton.style.opacity = '0';
+          setTimeout(() => {
+            noButton.style.display = 'none';
+          }, 300);
+        }
       });
 
-      // Evet Butonu Etkileşimi & Cevapları Gönderme
       yesButton.addEventListener('click', () => {
         imageDisplay.src = OFFER_IMAGES[OFFER_IMAGES.length - 1];
         valentineQuestion.textContent = 'Yesss!! Kahve sözünü aldım ✨';
         responseButtons.style.display = 'none';
 
-        // Konfeti Efekti
         const heart = confetti.shapeFromPath({
           path: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
         });
@@ -220,7 +225,6 @@
         confetti({ ...defaults, particleCount: 25, scalar: 3 });
         confetti({ ...defaults, particleCount: 10, scalar: 4 });
 
-        // Formspree Üzerinden Cevapları E-postana Gönderme
         if (FORMSPREE_ID && FORMSPREE_ID !== "YOUR_FORMSPREE_ID") {
           fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
             method: 'POST',
@@ -229,14 +233,12 @@
           });
         }
 
-        // WhatsApp Yönlendirmesi
         setTimeout(() => {
           const message = encodeURIComponent("Kahve teklifini kabul ettim! Ne zaman buluşuyoruz? ✨");
           window.location.href = `https://wa.me/${MY_PHONE_NUMBER}?text=${message}`;
-        }, 2000);
+        }, 2200);
       });
 
-      // İlk Soruyu Yükle
       loadQuestion();
     })();
   </script>
