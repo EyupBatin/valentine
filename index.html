@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A cute Valentine's Day page to ask someone to be your Valentine!">
+  <meta name="description" content="Kısa bir kahve molası ve tanışma testi!">
   <meta name="theme-color" content="#ffd0e5">
-  <title>Valentine's Day</title>
+  <title>Kahve Molası? ✨</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <style>
@@ -30,7 +30,6 @@
       }
     }
   </style>
-  <!-- Preload images so transitions feel instant -->
   <link rel="preload" as="image" href="./images/image1.gif">
   <link rel="preload" as="image" href="./images/image2.gif">
   <link rel="preload" as="image" href="./images/image3.gif">
@@ -41,92 +40,158 @@
 </head>
 <body class="gradient-background">
   <main class="flex items-center justify-center h-screen">
-    <section class="flex flex-col items-center p-4">
+    <section class="flex flex-col items-center p-4 max-w-md w-full text-center">
+      
       <img
         id="imageDisplay"
         src="./images/image1.gif"
-        alt="Cute kitten with flowers"
-        class="rounded-md h-[300px] object-cover"
+        alt="Sevimli Görsel"
+        class="rounded-md h-[260px] object-cover mb-4"
       />
-      <h1 id="valentineQuestion" class="text-4xl font-bold italic text-[#bd1e59] my-4">
-        Will you be my Valentine?
+
+      <div id="progressBar" class="w-full bg-white/50 h-2 rounded-full mb-4 overflow-hidden">
+        <div id="progressFill" class="bg-[#bd1e59] h-full w-0 transition-all duration-300"></div>
+      </div>
+
+      <h1 id="valentineQuestion" class="text-3xl font-bold italic text-[#bd1e59] my-2">
+        Soru yükleniyor...
       </h1>
-      <div id="responseButtons" class="flex gap-4 pt-5 items-center">
+
+      <div id="quizOptions" class="flex flex-col gap-3 w-full mt-4">
+        </div>
+
+      <div id="responseButtons" class="hidden gap-4 pt-5 items-center justify-center">
         <button
           id="yesButton"
           class="bounce inline-flex items-center justify-center whitespace-nowrap rounded-md text-xl font-medium cursor-pointer px-4 py-2 bg-green-500 text-white transition-all duration-300 ease-in-out hover:bg-green-400 min-h-12 min-w-[75px]"
         >
-          Yes
+          Evet! ☕
         </button>
         <button
           id="noButton"
           class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-xl font-medium cursor-pointer px-4 py-2 bg-red-500 text-white transition-colors hover:bg-red-700 h-12 min-w-[75px]"
         >
-          No
+          Hayır
         </button>
       </div>
+
     </section>
   </main>
 
   <script>
     (() => {
-      // DOM references
+      // Formspree ID'ni buraya yapıştır (Örn: "xgejpwoq")
+      const FORMSPREE_ID = "YOUR_FORMSPREE_ID"; 
+      const MY_PHONE_NUMBER = "905000000000"; // Telefon numaran
+
+      // DOM Referansları
       const yesButton = document.getElementById('yesButton');
       const noButton = document.getElementById('noButton');
       const imageDisplay = document.getElementById('imageDisplay');
       const valentineQuestion = document.getElementById('valentineQuestion');
       const responseButtons = document.getElementById('responseButtons');
+      const quizOptions = document.getElementById('quizOptions');
+      const progressBar = document.getElementById('progressBar');
+      const progressFill = document.getElementById('progressFill');
 
-      // Configuration
+      // Tanışma Soruları Dizesi
+      const QUIZ_QUESTIONS = [
+        {
+          question: "İdeal bir kahve molasında tercihin ne olurdu?",
+          options: ["Sakin bir kafede latte / espresso ☕", "Açık havada tatlı & çay 🍰", "Parkta yürüyüş yaparken filtre kahve 🌿"],
+          image: "./images/image1.gif"
+        },
+        {
+          question: "Arka planda ne tür bir müzik çalsa modun yükselir?",
+          options: ["Indie / Akustik 🎸", "Retro / 80'ler 🪩", "Jazz / Chillhop 🎷"],
+          image: "./images/image2.gif"
+        },
+        {
+          question: "Kahvenin yanında tatlı olarak ne alırdık?",
+          options: ["San Sebastian / Cheesecake 🧀", "Çikolatalı Kruvasan 🥐", "Sadece sohbet yeter! ✨"],
+          image: "./images/image3.gif"
+        }
+      ];
+
+      // Kahve Teklifi Konfigürasyonu
       const GROWTH_PER_CLICK = 35;
       const FONT_GROWTH_PER_CLICK = 25;
       const MAX_NO_CLICKS = 5;
 
-      const IMAGE_PATHS = [
-        './images/image1.gif',
-        './images/image2.gif',
-        './images/image3.gif',
+      const OFFER_IMAGES = [
         './images/image4.gif',
         './images/image5.gif',
         './images/image6.gif',
+        './images/image2.gif',
+        './images/image3.gif',
         './images/image7.gif',
       ];
 
       const NO_BUTTON_MESSAGES = [
-        'No',
-        'Are you sure?',
-        'Pookie please',
-        "Don't do this to me :(",
-        "You're breaking my heart",
-        "I'm gonna cry...",
+        'Hayır',
+        'Emin misin?',
+        'Lütfen ama...',
+        'Bunu bana yapma :(',
+        'Kalbim kırılıyor...',
+        'Ağlarım ama...',
       ];
 
-      const ALT_TEXTS = [
-        'Cute kitten with flowers',
-        'Sad kitten looking up',
-        'Kitten begging',
-        'Heartbroken kitten',
-        'Crying kitten',
-        'Devastated kitten',
-        'Happy kitten celebrating',
-      ];
-
-      // State
+      // Durum Değişkenleri
+      let currentQuizIndex = 0;
+      let userAnswers = {};
       let noClickCount = 0;
       let buttonHeight = 48;
       let buttonWidth = 80;
       let fontSize = 20;
 
+      // --- QUIZ MANTIĞI ---
+      function loadQuestion() {
+        const q = QUIZ_QUESTIONS[currentQuizIndex];
+        valentineQuestion.textContent = q.question;
+        imageDisplay.src = q.image;
+        quizOptions.innerHTML = '';
+
+        // İlerleme çubuğu
+        progressFill.style.width = `${((currentQuizIndex + 1) / QUIZ_QUESTIONS.length) * 100}%`;
+
+        q.options.forEach(optionText => {
+          const btn = document.createElement('button');
+          btn.className = "w-full py-3 px-4 bg-white/80 hover:bg-white text-[#bd1e59] font-semibold rounded-xl border border-[#ffd0e5] shadow-sm transition-all duration-200 hover:scale-[1.02]";
+          btn.textContent = optionText;
+          btn.onclick = () => selectAnswer(q.question, optionText);
+          quizOptions.appendChild(btn);
+        });
+      }
+
+      function selectAnswer(question, answer) {
+        userAnswers[`Soru_${currentQuizIndex + 1}`] = answer;
+        currentQuizIndex++;
+
+        if (currentQuizIndex < QUIZ_QUESTIONS.length) {
+          loadQuestion();
+        } else {
+          startCoffeeOffer();
+        }
+      }
+
+      // --- KAHVE TEKLİFİ MANTIĞI ---
+      function startCoffeeOffer() {
+        quizOptions.classList.add('hidden');
+        progressBar.classList.add('hidden');
+        responseButtons.classList.remove('hidden');
+        
+        valentineQuestion.textContent = "Benimle kısa bir kahve molasına çıkar mısın?";
+        imageDisplay.src = './images/image1.gif';
+      }
+
+      // Hayır Butonu Etkileşimi
       noButton.addEventListener('click', () => {
         if (noClickCount >= MAX_NO_CLICKS) return;
 
         noClickCount++;
 
-        // Update image and alt text
-        imageDisplay.src = IMAGE_PATHS[noClickCount];
-        imageDisplay.alt = ALT_TEXTS[noClickCount];
+        imageDisplay.src = OFFER_IMAGES[noClickCount - 1] || OFFER_IMAGES[0];
 
-        // Grow the "Yes" button to make it harder to ignore
         buttonHeight += GROWTH_PER_CLICK;
         buttonWidth += GROWTH_PER_CLICK;
         fontSize += FONT_GROWTH_PER_CLICK;
@@ -135,17 +200,16 @@
         yesButton.style.width = `${buttonWidth}px`;
         yesButton.style.fontSize = `${fontSize}px`;
 
-        // Update "No" button text with increasingly desperate messages
         noButton.textContent = NO_BUTTON_MESSAGES[noClickCount];
       });
 
+      // Evet Butonu Etkileşimi & Cevapları Gönderme
       yesButton.addEventListener('click', () => {
-        imageDisplay.src = IMAGE_PATHS[IMAGE_PATHS.length - 1];
-        imageDisplay.alt = ALT_TEXTS[ALT_TEXTS.length - 1];
-        valentineQuestion.textContent = 'Yayyy!! :3';
+        imageDisplay.src = OFFER_IMAGES[OFFER_IMAGES.length - 1];
+        valentineQuestion.textContent = 'Yesss!! Kahve sözünü aldım ✨';
         responseButtons.style.display = 'none';
 
-        // Heart-shaped confetti for a valentine theme
+        // Konfeti Efekti
         const heart = confetti.shapeFromPath({
           path: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
         });
@@ -155,7 +219,25 @@
         confetti({ ...defaults, particleCount: 50, scalar: 2 });
         confetti({ ...defaults, particleCount: 25, scalar: 3 });
         confetti({ ...defaults, particleCount: 10, scalar: 4 });
+
+        // Formspree Üzerinden Cevapları E-postana Gönderme
+        if (FORMSPREE_ID && FORMSPREE_ID !== "YOUR_FORMSPREE_ID") {
+          fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userAnswers)
+          });
+        }
+
+        // WhatsApp Yönlendirmesi
+        setTimeout(() => {
+          const message = encodeURIComponent("Kahve teklifini kabul ettim! Ne zaman buluşuyoruz? ✨");
+          window.location.href = `https://wa.me/${MY_PHONE_NUMBER}?text=${message}`;
+        }, 2000);
       });
+
+      // İlk Soruyu Yükle
+      loadQuestion();
     })();
   </script>
 </body>
