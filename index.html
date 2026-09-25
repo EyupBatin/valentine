@@ -109,7 +109,8 @@
     <!-- Ana Soru Ekranı -->
     <div id="ask-container">
       <div class="gif-container">
-        <img id="main-gif" src="https://media.tenor.com/gU21Go3h498AAAAi/bear-cute.gif" alt="Cute Bear">
+        <!-- Yerel klasördeki resim yolu -->
+        <img id="main-gif" src="images/main.gif" alt="Cute Bear">
       </div>
       <h1 id="question-text">Benimle tatlı bir kahve molasına çıkar mısın? ☕✨</h1>
       
@@ -122,7 +123,8 @@
     <!-- Kabul Edildi Ekranı -->
     <div id="success-container" class="hidden">
       <div class="gif-container">
-        <img src="https://media.tenor.com/ef39n0D2yvAAAAAi/milk-and-mocha.gif" alt="Happy Dance">
+        <!-- Kabul edildiğinde çıkacak yerel resim -->
+        <img src="images/happy.gif" alt="Happy Dance">
       </div>
       <h1>Yaaa harika! Sözünü aldım 🎉</h1>
       <p style="margin-top: 10px; color: #590d22;">WhatsApp'a yönlendiriliyorsun...</p>
@@ -130,14 +132,13 @@
   </div>
 
   <script>
-    // Telefon numaranı uluslararası formatta buraya yazabilirsin (örn: 905xxxxxxxxx)
-    const MY_PHONE_NUMBER = "905533245398"; 
+    const MY_PHONE_NUMBER = "905000000000"; 
 
+    // Yerel resim dizisi
     const noGifs = [
-      "https://media.tenor.com/ef39n0D2yvAAAAAi/milk-and-mocha.gif",
-      "https://media.tenor.com/97y4x7A53LAAAAAi/bear-sad.gif",
-      "https://media.tenor.com/9dM2GqWdClAAAAAi/cry-cat.gif",
-      "https://media.tenor.com/J3-6A1jU8L4AAAAi/mocha-bear.gif"
+      "images/sad1.gif",
+      "images/sad2.gif",
+      "images/sad3.gif"
     ];
 
     const noTexts = [
@@ -156,16 +157,13 @@
       const noBtn = document.getElementById("noBtn");
       const mainGif = document.getElementById("main-gif");
 
-      // 1. "Evet" butonunu büyüt
       yesScale += 0.3;
       yesBtn.style.transform = `scale(${yesScale})`;
 
-      // 2. "Hayır" butonunu rastgele bir yere kaçır
       const x = Math.floor(Math.random() * 180) - 90;
       const y = Math.floor(Math.random() * 140) - 70;
       noBtn.style.transform = `translate(${x}px, ${y}px)`;
 
-      // 3. GIF ve Buton metnini değiştir
       if (clickCount < noGifs.length) {
         mainGif.src = noGifs[clickCount];
       }
